@@ -49,23 +49,25 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
 
-    - name: Safely Fix Android SDK and AGP Versions (API 37 Required)
+    - name: Force Android SDK to 37 (Required by Start.io)
       run: |
-        # 1. Update Android Gradle Plugin to 8.8.0 (supports API 37)
-        sed -i "s/classpath 'com.android.tools.build:gradle:.*'/classpath 'com.android.tools.build:gradle:8.8.0'/" android/build.gradle
+        # 1. Update Android Gradle Plugin to 8.3.0
+        sed -i "s/classpath 'com.android.tools.build:gradle:.*'/classpath 'com.android.tools.build:gradle:8.3.0'/" android/build.gradle
         
-        # 2. Update SDK versions to 37 as strictly required by Start.io
+        # 2. Forcefully replace any compileSdkVersion or targetSdkVersion with 37
         sed -i 's/compileSdkVersion = .*/compileSdkVersion = 37/' android/variables.gradle
         sed -i 's/targetSdkVersion = .*/targetSdkVersion = 37/' android/variables.gradle
         
         # 3. Suppress unsupported compile SDK warning
         echo "android.suppressUnsupportedCompileSdk=37" >> android/gradle.properties
         
-        # 4. VERIFICATION: Print the changes to the log so we can see if they worked
-        echo "=== Checking variables.gradle ==="
-        grep -E "SdkVersion" android/variables.gradle || echo "Not found!"
-        echo "=== Checking build.gradle ==="
-        grep "com.android.tools.build:gradle" android/build.gradle || echo "Not found!"
+        # 4. VERIFICATION: This will print the exact SDK versions in the log so we can confirm
+        echo "========================================="
+        echo "CHECKING SDK VERSIONS IN variables.gradle:"
+        grep -i "sdkversion" android/variables.gradle || echo "NOT FOUND!"
+        echo "CHECKING AGP VERSION IN build.gradle:"
+        grep "com.android.tools.build:gradle" android/build.gradle || echo "NOT FOUND!"
+        echo "========================================="
 
     - name: Build APK
       run: |
