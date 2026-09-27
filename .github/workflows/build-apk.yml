@@ -49,23 +49,23 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
 
-    - name: Fix Android SDK and AGP Versions (Required by Start.io)
+    - name: Safely Fix Android SDK and AGP Versions
       run: |
-        # Update Android Gradle Plugin to a version that supports newer SDKs
-        sed -i 's/com.android.tools.build:gradle:.*/com.android.tools.build:gradle:8.8.0/' android/build.gradle
+        # Safely update Android Gradle Plugin to 8.3.0 (Stable version)
+        sed -i "s/classpath 'com.android.tools.build:gradle:.*'/classpath 'com.android.tools.build:gradle:8.3.0'/" android/build.gradle
         
-        # Update SDK versions to 35
-        sed -i 's/compileSdkVersion = .*/compileSdkVersion = 35/' android/variables.gradle
-        sed -i 's/targetSdkVersion = .*/targetSdkVersion = 35/' android/variables.gradle
+        # Safely update SDK versions to 35
+        sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 35/' android/variables.gradle
+        sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 35/' android/variables.gradle
         
-        # Suppress any unsupported compile SDK warnings
+        # Add suppress warning for compile SDK
         echo "android.suppressUnsupportedCompileSdk=35" >> android/gradle.properties
 
     - name: Build APK
       run: |
         cd android
         chmod +x gradlew
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
