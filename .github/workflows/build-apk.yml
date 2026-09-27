@@ -32,11 +32,12 @@ jobs:
         npm install capacitor-unity-ads
         npm install @martinezmanoloa/capacitor-startio-ads
 
-    - name: Initialize Capacitor
-      run: |
-        npx cap init "Money Mind" "com.ekamgroup.moneymind" --web-dir .
-        npx cap add android
-        npx cap sync android
+    - name: Add Android Platform
+      # ਇਹ ਕਮਾਂਡ ਸਿਰਫ਼ ਐਂਡਰਾਇਡ ਫੋਲਡਰ ਬਣਾਏਗੀ, init ਦੀ ਲੋੜ ਨਹੀਂ ਕਿਉਂਕਿ config ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ
+      run: npx cap add android
+
+    - name: Sync Capacitor
+      run: npx cap sync android
 
     - name: Build APK
       run: |
