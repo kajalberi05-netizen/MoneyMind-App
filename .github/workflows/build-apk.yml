@@ -49,10 +49,17 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
 
-    - name: Fix Android SDK Version (Required by Start.io)
+    - name: Fix Android SDK and AGP Versions (Required by Start.io)
       run: |
+        # Update Android Gradle Plugin to a version that supports newer SDKs
+        sed -i 's/com.android.tools.build:gradle:.*/com.android.tools.build:gradle:8.8.0/' android/build.gradle
+        
+        # Update SDK versions to 35
         sed -i 's/compileSdkVersion = .*/compileSdkVersion = 35/' android/variables.gradle
         sed -i 's/targetSdkVersion = .*/targetSdkVersion = 35/' android/variables.gradle
+        
+        # Suppress any unsupported compile SDK warnings
+        echo "android.suppressUnsupportedCompileSdk=35" >> android/gradle.properties
 
     - name: Build APK
       run: |
