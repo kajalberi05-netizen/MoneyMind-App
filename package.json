@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@martinezmanoloa/capacitor-startio-ads": "^0.0.4",
+    "capacitor-unity-ads": "^1.0.0"
+  },
+  "name": "moneymind",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
