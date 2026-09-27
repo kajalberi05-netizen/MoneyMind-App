@@ -1,5 +1,5 @@
 {
   "appId": "com.ekamgroup.moneymind",
   "appName": "Money Mind",
-  "webDir": "www"
+  "webDir": "."
 }
