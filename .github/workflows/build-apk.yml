@@ -49,6 +49,11 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
 
+    - name: Fix Android SDK Version (Required by Start.io)
+      run: |
+        sed -i 's/compileSdkVersion = .*/compileSdkVersion = 35/' android/variables.gradle
+        sed -i 's/targetSdkVersion = .*/targetSdkVersion = 35/' android/variables.gradle
+
     - name: Build APK
       run: |
         cd android
