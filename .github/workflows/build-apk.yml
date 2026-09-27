@@ -54,19 +54,17 @@ jobs:
         # 1. Update Android Gradle Plugin to 8.3.0
         sed -i "s/classpath 'com.android.tools.build:gradle:.*'/classpath 'com.android.tools.build:gradle:8.3.0'/" android/build.gradle
         
-        # 2. Forcefully replace any compileSdkVersion or targetSdkVersion with 37
-        sed -i 's/compileSdkVersion = .*/compileSdkVersion = 37/' android/variables.gradle
-        sed -i 's/targetSdkVersion = .*/targetSdkVersion = 37/' android/variables.gradle
+        # 2. Forcefully replace any number after compileSdkVersion or targetSdkVersion with 37
+        sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 37/' android/variables.gradle
+        sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 37/' android/variables.gradle
         
         # 3. Suppress unsupported compile SDK warning
         echo "android.suppressUnsupportedCompileSdk=37" >> android/gradle.properties
         
-        # 4. VERIFICATION: This will print the exact SDK versions in the log so we can confirm
+        # 4. CRITICAL VERIFICATION: Print the ENTIRE file so we know EXACTLY what is inside
         echo "========================================="
-        echo "CHECKING SDK VERSIONS IN variables.gradle:"
-        grep -i "sdkversion" android/variables.gradle || echo "NOT FOUND!"
-        echo "CHECKING AGP VERSION IN build.gradle:"
-        grep "com.android.tools.build:gradle" android/build.gradle || echo "NOT FOUND!"
+        echo "CONTENT OF android/variables.gradle:"
+        cat android/variables.gradle
         echo "========================================="
 
     - name: Build APK
