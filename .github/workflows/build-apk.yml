@@ -23,6 +23,17 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
+    - name: Automatically create www folder and move files
+      run: |
+        mkdir www
+        mv index.html www/
+        mv css www/ 2>/dev/null || true
+        mv js www/ 2>/dev/null || true
+        mv config www/ 2>/dev/null || true
+        mv assets www/ 2>/dev/null || true
+        mv security www/ 2>/dev/null || true
+        sed -i 's/"webDir":.*/"webDir": "www"/' capacitor.config.json
+
     - name: Install Dependencies
       run: npm install
 
@@ -33,7 +44,6 @@ jobs:
         npm install @martinezmanoloa/capacitor-startio-ads
 
     - name: Add Android Platform
-      # ਇਹ ਕਮਾਂਡ ਸਿਰਫ਼ ਐਂਡਰਾਇਡ ਫੋਲਡਰ ਬਣਾਏਗੀ, init ਦੀ ਲੋੜ ਨਹੀਂ ਕਿਉਂਕਿ config ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ
       run: npx cap add android
 
     - name: Sync Capacitor
