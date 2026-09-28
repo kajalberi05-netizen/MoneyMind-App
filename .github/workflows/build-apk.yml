@@ -1,50 +1,52 @@
-name: Build Android APK
-
-on:
-  push:
-    branches: [ "main" ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-    
-    - name: Setup Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '17'
-    
-    - name: Install Dependencies
-      run: |
-        npm install
-        npm install @capacitor/core @capacitor/cli
-        npm install capacitor-unity-ads
-        npm install @martinezmanoloa/capacitor-startio-ads
-    
-    - name: Setup www folder
-      run: |
-        mkdir -p www
-        mv index.html www/ 2>/dev/null || true
-        find . -maxdepth 1 -type d \( -name "css" -o -name "js" -o -name "config" -o -name "assets" \) -exec mv {} www/ \; 2>/dev/null || true
-        sed -i 's/"webDir":.*/"webDir": "www"/' capacitor.config.json
-    
-    - name: Build with Capacitor
-      run: |
-        npx cap add android
-        npx cap sync android
-        cd android
-        ./gradlew assembleDebug --warning-mode none
-    
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: MoneyMind-App
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+workflows:
+  android-workflow:
+    name: MoneyMind Android Build
+    instance_type: linux
+    max_build_duration: 60
+    environment:
+      groups:
+        - default
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+    scripts:
+      - name: Setup Node.js 22
+        script: |
+          curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          node --version
+      
+      - name: Install Dependencies
+        script: |
+          npm install
+          npm install @capacitor/core @capacitor/cli
+          npm install capacitor-unity-ads
+          npm install @martinezmanoloa/capacitor-startio-ads
+      
+      - name: Setup www folder
+        script: |
+          mkdir -p www
+          mv index.html www/ 2>/dev/null || true
+          find . -maxdepth 1 -type d \( -name "css" -o -name "js" -o -name "config" -o -name "assets" \) -exec mv {} www/ \; 2>/dev/null || true
+          sed -i 's/"webDir":.*/"webDir": "www"/' capacitor.config.json
+      
+      - name: Build Android APK
+        script: |
+          npx cap add android
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      
+      - name: Copy APK
+        script: |
+          mkdir -p /tmp/outputs
+          cp android/app/build/outputs/apk/debug/app-debug.apk /tmp/outputs/MoneyMind.apk
+    artifacts:
+      - /tmp/outputs/*.apk
+    publishing:
+      email:
+        recipients:
+          - kajalberi05@gmail.com
