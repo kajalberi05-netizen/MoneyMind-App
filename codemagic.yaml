@@ -1,0 +1,54 @@
+workflows:
+  android-workflow:
+    name: MoneyMind Android Build
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      android_signing:
+      groups:
+        - default
+      vars:
+        PACKAGE_NAME: "com.ekamgroup.moneymind"
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+    scripts:
+      - name: Setup Node.js
+        script: |
+          curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+      
+      - name: Install Dependencies
+        script: |
+          npm install
+          npm install @capacitor/core @capacitor/cli
+          npm install capacitor-unity-ads
+          npm install @martinezmanoloa/capacitor-startio-ads
+      
+      - name: Setup www folder
+        script: |
+          mkdir -p www
+          mv index.html www/ 2>/dev/null || true
+          find . -maxdepth 1 -type d \( -name "css" -o -name "js" -o -name "config" -o -name "assets" \) -exec mv {} www/ \; 2>/dev/null || true
+          sed -i 's/"webDir":.*/"webDir": "www"/' capacitor.config.json
+      
+      - name: Build Android APK
+        script: |
+          npx cap add android
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      
+      - name: Copy APK to output
+        script: |
+          mkdir -p /tmp/outputs
+          cp android/app/build/outputs/apk/debug/app-debug.apk /tmp/outputs/MoneyMind.apk
+    artifacts:
+      - /tmp/outputs/*.apk
+    publishing:
+      email:
+        recipients:
+          - kajalberi05@gmail.com
