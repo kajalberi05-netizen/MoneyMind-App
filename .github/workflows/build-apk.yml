@@ -9,71 +9,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v4
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
-
-    - name: Setup Java JDK
-      uses: actions/setup-java@v4
+        node-version: '18'
+    
+    - name: Setup Java
+      uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '17'
-
-    - name: Automatically create www folder and move files
-      run: |
-        mkdir www
-        mv index.html www/
-        mv css www/ 2>/dev/null || true
-        mv js www/ 2>/dev/null || true
-        mv config www/ 2>/dev/null || true
-        mv assets www/ 2>/dev/null || true
-        mv security www/ 2>/dev/null || true
-        sed -i 's/"webDir":.*/"webDir": "www"/' capacitor.config.json
-
+        java-version: '11'
+    
     - name: Install Dependencies
-      run: npm install
-
-    - name: Install Capacitor & Plugins
       run: |
-        npm install @capacitor/core @capacitor/cli @capacitor/android
+        npm install
+        npm install @capacitor/core @capacitor/cli
         npm install capacitor-unity-ads
         npm install @martinezmanoloa/capacitor-startio-ads
-
-    - name: Add Android Platform
-      run: npx cap add android
-
-    - name: Sync Capacitor
-      run: npx cap sync android
-
-    - name: Force Android SDK to 37 (Required by Start.io)
+    
+    - name: Setup www folder
       run: |
-        # 1. Update Android Gradle Plugin to 8.3.0
-        sed -i "s/classpath 'com.android.tools.build:gradle:.*'/classpath 'com.android.tools.build:gradle:8.3.0'/" android/build.gradle
-        
-        # 2. Forcefully replace any number after compileSdkVersion or targetSdkVersion with 37
-        sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 37/' android/variables.gradle
-        sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 37/' android/variables.gradle
-        
-        # 3. Suppress unsupported compile SDK warning
-        echo "android.suppressUnsupportedCompileSdk=37" >> android/gradle.properties
-        
-        # 4. CRITICAL VERIFICATION: Print the ENTIRE file so we know EXACTLY what is inside
-        echo "========================================="
-        echo "CONTENT OF android/variables.gradle:"
-        cat android/variables.gradle
-        echo "========================================="
-
-    - name: Build APK
+        mkdir -p www
+        mv index.html www/ 2>/dev/null || true
+        find . -maxdepth 1 -type d \( -name "css" -o -name "js" -o -name "config" -o -name "assets" \) -exec mv {} www/ \; 2>/dev/null || true
+    
+    - name: Build with Capacitor
       run: |
+        npx cap init "Money Mind" "com.ekamgroup.moneymind" --web-dir www --force
+        npx cap add android
+        npx cap sync android
         cd android
-        chmod +x gradlew
-        ./gradlew assembleDebug --info
-
-    - name: Upload APK Artifact
+        ./gradlew assembleDebug --warning-mode none
+    
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: MoneyMind-App
