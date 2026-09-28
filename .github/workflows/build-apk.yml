@@ -14,7 +14,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'  # <-- ਇੱਥੇ 22 ਕੀਤਾ ਹੈ
+        node-version: '22'
     
     - name: Setup Java
       uses: actions/setup-java@v3
@@ -34,10 +34,10 @@ jobs:
         mkdir -p www
         mv index.html www/ 2>/dev/null || true
         find . -maxdepth 1 -type d \( -name "css" -o -name "js" -o -name "config" -o -name "assets" \) -exec mv {} www/ \; 2>/dev/null || true
+        sed -i 's/"webDir":.*/"webDir": "www"/' capacitor.config.json
     
     - name: Build with Capacitor
       run: |
-        npx cap init "Money Mind" "com.ekamgroup.moneymind" --web-dir www --force
         npx cap add android
         npx cap sync android
         cd android
