@@ -14,13 +14,13 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'  # <-- ਇੱਥੇ 22 ਕੀਤਾ ਹੈ
     
     - name: Setup Java
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '11'
+        java-version: '17'
     
     - name: Install Dependencies
       run: |
